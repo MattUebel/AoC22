@@ -32,6 +32,17 @@ def is_contained(range1, range2):
         return False
 
 
+def overlaps_at_all(range1, range2):
+    # Parse the range strings into start and end values
+    start1, end1 = map(int, range1.split("-"))
+    start2, end2 = map(int, range2.split("-"))
+    # check if the ranges overlap at all
+    if (start1 < start2 and end1 < start2) or (start2 < start1 and end2 < start1):
+        return False
+    else:
+        return True
+
+
 if __name__ == "__main__":
 
     print("my attempt")
@@ -53,6 +64,17 @@ if __name__ == "__main__":
         # Check if one range fully contains the other
         if is_contained(range1, range2) or is_contained(range2, range1):
             count += 1
+
+    # find the pairs that overlap at all
+    overlap_count = 0
+    for pair in pairs:
+        # Split the pair into the two ranges
+        range1, range2 = pair.split(",")
+        # Check if one range fully contains the other
+        if overlaps_at_all(range1, range2):
+            overlap_count += 1
+
+    print(f"overlaps at all: {overlap_count}")
 
     # Print the result
     print(f"In {count} assignment pairs, one range fully contains the other.")
