@@ -43,8 +43,6 @@ def stacks_dict_gen(stacks):
         # split the stack into a list of crates
         crates = parse_crates(stack)
         crate_index = 1
-        print(len(crates))
-        print(crates)
         for crate in crates:
             if crate == "   ":
                 # empty spot, skip
@@ -78,12 +76,43 @@ def perform_instructions(stacks_dict, instructions):
     return top_of_stack_string
 
 
+def perform_part2_instructions(stacks_dict, instructions):
+    # like perform_instructions, but move total crates all at the same time
+    print(len(instructions))
+    for instruction in instructions:
+        move_total, move_from, move_to = re.findall(r"\d+", instruction)
+        print(f"move_total: {move_total}, move_from: {move_from}, move_to: {move_to}")
+        # slice the move_from stack to get the crates to move
+        crates_to_move = stacks_dict[move_from][-int(move_total) :]
+        # pop the crates that are being moved
+        for i in range(int(move_total)):
+            stacks_dict[move_from].pop()
+        # print(stacks_dict[move_from])
+        print(crates_to_move)
+        # print(stacks_dict[move_to])
+        # stack the crates_to_move on top of the move_to stack
+        stacks_dict[move_to] += crates_to_move
+        # print(stacks_dict[move_to])
+        top_of_stack_string = ""
+    for k, v in stacks_dict.items():
+        top_of_stack_string += v[-1]
+    return top_of_stack_string
+
+
 def main():
+    print("part 1")
     data = open("input.txt", "r").read().splitlines()
     stacks, instructions = parse_data(data)
     stacks_dict = stacks_dict_gen(stacks)
     print(stacks_dict)
     top_of_stack_string = perform_instructions(stacks_dict, instructions)
+    print(top_of_stack_string)
+
+    print("part 2")
+    data = open("input.txt", "r").read().splitlines()
+    stacks, instructions = parse_data(data)
+    stacks_dict = stacks_dict_gen(stacks)
+    top_of_stack_string = perform_part2_instructions(stacks_dict, instructions)
     print(top_of_stack_string)
 
 
