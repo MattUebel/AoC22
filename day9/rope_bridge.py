@@ -1,6 +1,6 @@
 # Path: day9/rope_bridge.py
 
-DIRECTIONS = ["U", "D", "L", "R", "UR", "UL", "DR", "DL"]
+DIRECTIONS = ["U", "D", "L", "R", "UR", "UL", "DR", "DL", "none"]
 
 
 class Point:
@@ -21,6 +21,8 @@ class Point:
             self.x += 1
         elif direction == "L":
             self.x -= 1
+        elif direction == "none":
+            pass
 
     def move_a_step_diagonal(self, direction):
         if direction == "UR":
@@ -35,6 +37,8 @@ class Point:
         elif direction == "DL":
             self.y -= 1
             self.x -= 1
+        elif direction == "none":
+            pass
 
 
 class Rope:
@@ -45,7 +49,6 @@ class Rope:
 
     def execute_instruction(self, direction):
         # move the head
-        print(f"moving the head {direction}")
         self.head.move_a_step(direction)
         adjacent = [[0, 1], [0, -1], [1, 0], [-1, 0]]
         diagonally_adjacent = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
@@ -62,73 +65,62 @@ class Rope:
 
         # find the difference between the head and the tail
         diff = [self.head.x - self.tail.x, self.head.y - self.tail.y]
-        print(f"diff: {diff}")
 
         if diff == [0, 0]:
-            print("head and tail are in the same position")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "none"
 
         if diff in adjacent or diff in diagonally_adjacent:
-            print("head and tail are adjacent")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "none"
 
         # figure out which direction the tail should move
         if diff == two_to_left:
-            print("moving the tail to the left")
             self.tail.move_a_step("L")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "L"
         if diff == two_to_right:
-            print("moving the tail to the right")
             self.tail.move_a_step("R")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "R"
         if diff == two_up:
-            print("moving the tail up")
             self.tail.move_a_step("U")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "U"
         if diff == two_down:
-            print("moving the tail down")
             self.tail.move_a_step("D")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "D"
         if diff in up_left_diagonal:
-            print("moving the tail up left")
             self.tail.move_a_step_diagonal("UL")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "UL"
         if diff in up_right_diagonal:
-            print("moving the tail up right")
             self.tail.move_a_step_diagonal("UR")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "UR"
         if diff in down_left_diagonal:
-            print("moving the tail down left")
             self.tail.move_a_step_diagonal("DL")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "DL"
         if diff in down_right_diagonal:
-            print("moving the tail down right")
             self.tail.move_a_step_diagonal("DR")
             if not (self.tail.x, self.tail.y) in self.visited:
                 self.visited.append((self.tail.x, self.tail.y))
-            return True
+            return "DR"
 
 
 def main():
-    instructions = open("input.txt", "r").read().splitlines()
+    instructions = open("test.txt", "r").read().splitlines()
     rope = Rope(head=Point(0, 0), tail=Point(0, 0))
     for instruction in instructions:
         direction = instruction[0]
@@ -136,7 +128,50 @@ def main():
         for step in range(steps):
             rope.execute_instruction(direction)
 
-    print(len(rope.visited))
+    print("Part 1 ", len(rope.visited))
+
+    # part 2, 10 knotted rope
+    head_knot = Point(0, 0)
+    knot_one = Point(0, 0)
+    knot_two = Point(0, 0)
+    knot_three = Point(0, 0)
+    knot_four = Point(0, 0)
+    knot_five = Point(0, 0)
+    knot_six = Point(0, 0)
+    knot_seven = Point(0, 0)
+    knot_eight = Point(0, 0)
+    knot_nine = Point(0, 0)
+
+    head_rope = Rope(head=head_knot, tail=knot_one)
+    knot_one_rope = Rope(head=knot_one, tail=knot_two)
+    knot_two_rope = Rope(head=knot_two, tail=knot_three)
+    knot_three_rope = Rope(head=knot_three, tail=knot_four)
+    knot_four_rope = Rope(head=knot_four, tail=knot_five)
+    knot_five_rope = Rope(head=knot_five, tail=knot_six)
+    knot_six_rope = Rope(head=knot_six, tail=knot_seven)
+    knot_seven_rope = Rope(head=knot_seven, tail=knot_eight)
+    knot_eight_rope = Rope(head=knot_eight, tail=knot_nine)
+
+    ropes = [
+        head_rope,
+        knot_one_rope,
+        knot_two_rope,
+        knot_three_rope,
+        knot_four_rope,
+        knot_five_rope,
+        knot_six_rope,
+        knot_seven_rope,
+        knot_eight_rope,
+    ]
+
+    for instruction in instructions:
+        direction = instruction[0]
+        steps = int(instruction[1:])
+        for step in range(steps):
+            for rope in ropes:
+                direction = rope.execute_instruction(direction)
+
+    print("Part 2 ", len(ropes[-1].visited))
 
 
 if __name__ == "__main__":
