@@ -28,8 +28,19 @@
 #   Test: divisible by 17
 #     If true: throw to monkey 0
 #     If false: throw to monkey 1
+from functools import reduce
 
-config = open("input.txt").read().splitlines()
+
+def find_prime_factors(number):
+    factors = []
+    for i in range(2, number + 1):
+        while number % i == 0:
+            factors.append(i)
+            number /= i
+    return factors
+
+
+config = open("test.txt").read().splitlines()
 
 # parse monkey config
 monkey_config = {}
@@ -37,7 +48,10 @@ for line in config:
     if line.startswith("Monkey"):
         monkey = int(line.split(" ")[1][:-1])
         monkey_config[monkey] = {}
-        monkey_config[monkey]["items"] = config[config.index(line) + 1][18:].split(", ")
+        # run prime factorization on the starting items
+        monkey_config[monkey]["items"] = []
+        for item in config[config.index(line) + 1][18:].split(", "):
+            monkey_config[monkey]["items"].append(find_prime_factors(int(item)))
         monkey_config[monkey]["operation"] = config[config.index(line) + 2][19:]
         monkey_config[monkey]["test"] = config[config.index(line) + 3][21:]
         monkey_config[monkey]["if_true"] = config[config.index(line) + 4][29:]
@@ -46,24 +60,24 @@ for line in config:
 
 from pprint import pprint
 
-# pprint(monkey_config)
-
-ROUNDS = 20
+ROUNDS = 10000
 
 for i in range(ROUNDS):
     for monkey in monkey_config.keys():
         while len(monkey_config[monkey]["items"]) > 0:
-            old = int(monkey_config[monkey]["items"].pop(0))
+            # multiple all the items together
+            old = int(reduce(lambda x, y: x * y, monkey_config[monkey]["items"].pop(0)))
             monkey_config[monkey]["examined_count"] += 1
-            new = eval(monkey_config[monkey]["operation"]) // 3
+            new = eval(monkey_config[monkey]["operation"])
             if new % int(monkey_config[monkey]["test"]) == 0:
                 monkey_config[int(monkey_config[monkey]["if_true"])]["items"].append(
-                    new
+                    find_prime_factors(new)
                 )
             else:
                 monkey_config[int(monkey_config[monkey]["if_false"])]["items"].append(
-                    new
+                    find_prime_factors(new)
                 )
+    print(f"Round {i + 1} complete")
 
 # pprint(monkey_config)
 
@@ -74,6 +88,8 @@ for monkey in monkey_config.keys():
 
 sorted_list = sorted(monkey_and_examined, key=lambda x: x[1])
 sorted_list[-2:]
+
+print(sorted_list)
 
 top_items = []
 for monkey in sorted_list[-2:]:
